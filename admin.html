@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>府城無糖指南 · 後台管理</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1208;
+    --gold: #b8860b;
+    --gold2: #d4a017;
+    --paper: #fdf6e8;
+    --paper2: #f5e8c8;
+    --paper3: #ede0b0;
+    --red: #c0392b;
+    --green: #0f5c52;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:'Noto Sans TC',sans-serif;
+    background:#f0ece4;
+    min-height:100vh;
+    color:var(--ink);
+  }
+
+  /* ── LOGIN ── */
+  .login-wrap {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--ink);
+    padding: 1.5rem;
+  }
+  .login-box {
+    background: #241c0e;
+    border: 1px solid var(--gold);
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    width: 100%;
+    max-width: 360px;
+    text-align: center;
+  }
+  .login-logo { font-size: 2.5rem; margin-bottom: 0.5rem; }
+  .login-title {
+    font-size: 18px; font-weight: 600; color: var(--gold2);
+    margin-bottom: 0.25rem;
+  }
+  .login-sub { font-size: 12px; color: #666; margin-bottom: 2rem; }
+  .login-box input {
+    width: 100%; padding: 11px 14px;
+    background: #1a1208; border: 1px solid #3a2e1a;
+    border-radius: 8px; color: var(--paper);
+    font-size: 15px; font-family: inherit;
+    margin-bottom: 12px; letter-spacing: 0.1em;
+  }
+  .login-box input:focus { outline: none; border-color: var(--gold); }
+  .login-btn {
+    width: 100%; padding: 12px;
+    background: var(--gold); color: var(--ink);
+    border: none; border-radius: 8px;
+    font-size: 15px; font-weight: 600; cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s;
+  }
+  .login-btn:hover { background: var(--gold2); }
+  .login-err { color: #e74c3c; font-size: 12px; margin-top: 10px; display:none; }
+
+  /* ── MAIN ── */
+  .admin-wrap { display: none; }
+
+  .top-bar {
+    background: var(--ink);
+    padding: 0 1.25rem;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .top-bar-title {
+    color: var(--gold2);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+  .top-bar-right { display: flex; align-items: center; gap: 10px; }
+  .sync-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #555;
+    transition: background 0.3s;
+  }
+  .sync-dot.live { background: #2ecc71; box-shadow: 0 0 6px #2ecc71; }
+  .logout-btn {
+    background: none; border: 1px solid #3a2e1a;
+    color: #888; padding: 5px 12px;
+    border-radius: 6px; font-size: 12px; cursor: pointer;
+    font-family: inherit;
+  }
+  .logout-btn:hover { border-color: var(--gold); color: var(--gold2); }
+
+  .main-content { max-width: 800px; margin: 0 auto; padding: 1.5rem; }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+  .stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    border: 1px solid #e8e0d0;
+  }
+  .stat-num { font-size: 24px; font-weight: 600; color: var(--ink); }
+  .stat-label { font-size: 11px; color: #888; margin-top: 2px; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+  }
+  .section-title { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .add-btn {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--ink); color: var(--gold2);
+    border: none; border-radius: 8px;
+    padding: 8px 14px; font-size: 13px; font-weight: 500;
+    cursor: pointer; font-family: inherit;
+  }
+  .add-btn:hover { background: #2a1f08; }
+
+  .search-bar {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    margin-bottom: 0.75rem;
+    background: white;
+  }
+  .search-bar:focus { outline: none; border-color: var(--gold); }
+
+  .shop-list { display: flex; flex-direction: column; gap: 8px; }
+  .shop-row {
+    background: white;
+    border: 1px solid #e8e0d0;
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: border-color 0.15s;
+  }
+  .shop-row:hover { border-color: var(--gold); }
+  .shop-row-emoji { font-size: 1.5rem; min-width: 30px; text-align: center; }
+  .shop-row-info { flex: 1; min-width: 0; }
+  .shop-row-name { font-size: 14px; font-weight: 500; }
+  .shop-row-meta { font-size: 11px; color: #888; margin-top: 2px; }
+  .level-badge {
+    padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 500;
+  }
+  .level-badge.low { background: #e8f5e9; color: #2e7d32; }
+  .level-badge.medium { background: #fff3e0; color: #e65100; }
+  .level-badge.high { background: #fce4ec; color: #c62828; }
+  .row-actions { display: flex; gap: 6px; }
+  .edit-btn, .del-btn {
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+  .edit-btn { background: #f0ece4; border: 1px solid #ddd; color: var(--ink); }
+  .edit-btn:hover { background: var(--paper2); }
+  .del-btn { background: #fff0f0; border: 1px solid #fcc; color: var(--red); }
+  .del-btn:hover { background: #ffe0e0; }
+
+  .empty-msg {
+    text-align: center; padding: 2rem;
+    color: #aaa; font-size: 13px;
+  }
+  .default-tag {
+    display: inline-block;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 10px;
+    background: #e8f0ff;
+    color: #2040a0;
+    margin-left: 6px;
+    vertical-align: middle;
+    font-weight: 500;
+  }
+  .is-default { opacity: 0.75; }
+  .is-default:hover { border-color: #ccc !important; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 200;
+    display: flex; align-items: flex-end;
+    animation: fadeIn 0.2s;
+  }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  .modal {
+    background: var(--paper);
+    width: 100%; max-width: 600px;
+    margin: 0 auto;
+    max-height: 92vh; overflow-y: auto;
+    border-radius: 18px 18px 0 0;
+    padding: 1.5rem 1.5rem 2.5rem;
+    animation: slideUp 0.25s ease;
+  }
+  @keyframes slideUp { from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1} }
+  .modal-title {
+    font-size: 17px; font-weight: 600; color: var(--ink);
+    margin-bottom: 1.25rem;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12px; color: #888; margin-bottom: 5px; font-weight: 500; }
+  .field input, .field select, .field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--paper3);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--ink);
+    background: white;
+    font-family: inherit;
+    transition: border-color 0.15s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    outline: none; border-color: var(--gold);
+  }
+  .field textarea { height: 80px; resize: none; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .modal-actions { display: flex; gap: 8px; margin-top: 8px; }
+  .save-btn {
+    flex: 1; padding: 12px;
+    background: var(--ink); color: var(--gold2);
+    border: none; border-radius: 10px;
+    font-size: 15px; font-weight: 500;
+    cursor: pointer; font-family: inherit;
+  }
+  .save-btn:hover { background: #2a1f08; }
+  .save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .cancel-btn {
+    padding: 12px 20px;
+    background: transparent; color: #888;
+    border: 1px solid var(--paper3); border-radius: 10px;
+    font-size: 14px; cursor: pointer; font-family: inherit;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: var(--gold2);
+    border: 1px solid var(--gold);
+    border-radius: 8px; padding: 10px 20px;
+    font-size: 13px; white-space: nowrap;
+    opacity: 0; transition: all 0.3s; z-index: 300;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .loading-overlay {
+    position: fixed; inset: 0;
+    background: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 12px;
+    z-index: 400;
+    transition: opacity 0.4s;
+  }
+  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+  .loading-text { color: var(--gold2); font-size: 14px; }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid #3a2e1a;
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loading">
+  <div style="font-size:2rem;">🏮</div>
+  <div class="spinner"></div>
+  <div class="loading-text">連線中...</div>
+</div>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-screen" style="display:none;">
+  <div class="login-box">
+    <div class="login-logo">⚙️</div>
+    <div class="login-title">府城無糖指南 · 後台</div>
+    <div class="login-sub">請輸入管理員密碼與 GitHub Token</div>
+    <input type="password" id="pw-input" placeholder="管理員密碼" onkeydown="if(event.key==='Enter')doLogin()" />
+    <input type="password" id="token-input" placeholder="GitHub Token（ghp_...）" onkeydown="if(event.key==='Enter')doLogin()" style="margin-top:0;" />
+    <div style="font-size:11px;color:#555;text-align:left;margin-bottom:12px;line-height:1.6;">
+      Token 只存在本機 session，關閉瀏覽器即清除。<br>
+      沒有 Token？前往 github.com/settings/tokens 建立。
+    </div>
+    <button class="login-btn" onclick="doLogin()">登入</button>
+    <div class="login-err" id="login-err" style="display:none;"></div>
+  </div>
+</div>
+
+<!-- MAIN ADMIN -->
+<div class="admin-wrap" id="admin-screen">
+
+  <div class="top-bar">
+    <div class="top-bar-title">🏮 府城無糖指南 · 後台管理</div>
+    <div class="top-bar-right">
+      <div class="sync-dot" id="sync-dot" title="Firebase 連線狀態"></div>
+      <span style="font-size:11px;color:#555;" id="sync-label">連線中</span>
+      <button class="logout-btn" onclick="doLogout()">登出</button>
+    </div>
+  </div>
+
+  <div class="main-content">
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num" id="stat-total">—</div>
+        <div class="stat-label">總店家數</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-low" style="color:#2e7d32">—</div>
+        <div class="stat-label">低甜度</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-high" style="color:#c62828">—</div>
+        <div class="stat-label">高甜度</div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <div class="section-title">店家列表</div>
+      <button class="add-btn" onclick="openModal(null)">＋ 新增店家</button>
+    </div>
+
+    <input class="search-bar" type="text" id="search" placeholder="🔍 搜尋店家名稱、區域..." oninput="renderList()" />
+
+    <div class="shop-list" id="shop-list">
+      <div class="empty-msg">載入中...</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════════
+   GitHub 設定
+   儲存庫：PO-MEOW/tainan-sugar-free
+══════════════════════════════════════════════ */
+const GITHUB_USER  = 'PO-MEOW';
+const GITHUB_REPO  = 'tainan-sugar-free';
+const GITHUB_FILE  = 'shops.json';
+const GITHUB_BRANCH = 'main';
+
+// 後台登入密碼
+const ADMIN_PASSWORD = "0609";
+
+/* ── 常數 ── */
+const AREAS = [
+  '中西區','東區','南區','北區','安平區','安南區','永康區',
+  '新營區','鹽水區','白河區','柳營區','後壁區','東山區',
+  '麻豆區','下營區','六甲區','官田區','大內區',
+  '仁德區','歸仁區','關廟區','龍崎區',
+  '新化區','善化區','新市區','安定區','山上區',
+  '玉井區','楠西區','南化區','左鎮區',
+  '佳里區','學甲區','西港區','七股區','將軍區','北門區',
+];
+const LEVEL_DOTS   = { low:1, medium:3, high:5 };
+const LEVEL_LABELS = { low:'低甜', medium:'中甜', high:'高甜' };
+
+/* ── 內建預設店家 ── */
+const DEFAULT_SHOPS = [
+  { name: '阿松割包', area: '中西區', addr: '民族路二段附近', level: 'high', emoji: '🥙', dots: 4, tip: '傳承三代的割包以黑糖醬著稱，甜度較高是刻意保留的古早風味。', code: '🔑 通關密語：「醬料分開放」', extra: '找到桌上的烏醋瓶，加 2 滴可達到完美平衡！' },
+  { name: '府城肉燥飯', area: '中西區', addr: '民族路附近', level: 'medium', emoji: '🍚', dots: 3, tip: '台南肉燥會加入少量冰糖提升醬色與香氣，這是正統台南做法。', code: '🔑 通關密語：「肉燥清淡一點」', extra: '搭配免費的清湯，可以有效稀釋整體甜度。' },
+  { name: '無名虱目魚湯', area: '中西區', addr: '保安路', level: 'low', emoji: '🐟', dots: 1, tip: '這家的湯頭以天然魚骨熬製，幾乎不加糖，是外地人初探台南的安全首選！', code: '✅ 無需密語，原味最佳', extra: '可以放心點用，甜度非常低，魚鮮味十足。' },
+  { name: '老牌碗粿', area: '中西區', addr: '赤崁樓旁', level: 'low', emoji: '🟤', dots: 2, tip: '老師傅堅持不加一滴糖，讓米香自然散發。在地人早餐首選。', code: '✅ 純米香，放心享用', extra: '淋上特製醬油膏即可，這是最道地的吃法。' },
+  { name: '赤崁擔仔麵', area: '中西區', addr: '赤崁樓周邊', level: 'medium', emoji: '🍝', dots: 3, tip: '傳統台南擔仔麵湯頭用蝦仁、豬油熬製，甜來自食材本身。', code: '🔑 密語：「蝦油少一點」', extra: '多加一顆滷蛋增加鹹香，平衡整碗的甜感。' },
+  { name: '國華街鹹粥', area: '中西區', addr: '國華街三段', level: 'low', emoji: '🥣', dots: 1, tip: '清爽的海鮮鹹粥，以蛤蜊、虱目魚提鮮，幾乎零加糖。', code: '✅ 外國人最愛，零負擔', extra: '加一勺烏魚子更增鮮味，是台南特有吃法。' },
+  { name: '永記虱目魚丸', area: '中西區', addr: '開山路', level: 'low', emoji: '🎱', dots: 1, tip: '手工虱目魚丸口感Q彈，清湯底幾乎無甜度，湯頭純粹鮮美。', code: '✅ 放心享用', extra: '點加辣版本讓鮮味更立體。' },
+  { name: '阿美飯店', area: '中西區', addr: '海安路一段', level: 'medium', emoji: '🍛', dots: 2, tip: '傳承台南古早家常味，紅燒肉甜度適中，不會過甜。', code: '🔑 密語：「紅燒汁少淋」', extra: '白飯很香，建議多加一碗！' },
+  { name: '東區鱔魚意麵', area: '東區', addr: '東門路二段', level: 'medium', emoji: '🍜', dots: 3, tip: '東區在地老字號，鱔魚新鮮肥美，醬汁比觀光區版本更平衡。', code: '🔑 密語：「醬汁少一半」', extra: '搭配泡菜解膩效果很好！' },
+  { name: '裕農路早餐店', area: '東區', addr: '裕農路', level: 'low', emoji: '🥚', dots: 1, tip: '在地人的早餐秘境，蔥花蛋餅鹹香不甜，豆漿可選無糖。', code: '✅ 全無糖版本可點', extra: '豆漿請直接說「無糖豆漿」，老闆習慣加糖要特別說。' },
+  { name: '東區牛肉湯', area: '東區', addr: '崇德路', level: 'low', emoji: '🥩', dots: 1, tip: '台南清燙牛肉湯是國際遊客最愛，清湯基底零加糖，牛肉極鮮。', code: '✅ 外國人必吃，無甜度', extra: '沾薑絲與醬油，不需任何甜醬。' },
+  { name: '安平蝦捲', area: '安平區', addr: '安平路', level: 'low', emoji: '🍤', dots: 2, tip: '安平傳統蝦捲外皮酥脆，蝦肉天然鮮甜，蘸附帶醬油而非甜醬。', code: '✅ 點「原味不加醬」最讚', extra: '現炸最香，外皮不沾任何甜醬。' },
+  { name: '安平老街虱目魚粥', area: '安平區', addr: '安平老街', level: 'low', emoji: '🐟', dots: 1, tip: '安平漁村正宗做法，柴魚高湯底部不加一滴糖，鮮美無比。', code: '✅ 外國人指定必吃', extra: '加一點薑絲可以完美去腥提鮮。' },
+  { name: '安平豆腐乳冰', area: '安平區', addr: '效忠街', level: 'high', emoji: '🍦', dots: 5, tip: '安平名物，豆腐乳鹹甜交雜是台南人的獨特口味，不愛甜食者謹慎嘗試。', code: '⚠️ 高甜度！建議試一口再決定', extra: '豆腐乳鹹味會平衡部分甜度，其實比看起來有趣很多。' },
+  { name: '永康牛肉麵', area: '永康區', addr: '中正路', level: 'low', emoji: '🥩', dots: 1, tip: '永康在地牛肉麵以清燉見長，湯頭以牛骨長時間熬製，不加糖。', code: '✅ 外國人超滿意，大推', extra: '選「清燉」版本絕對無甜，「紅燒」有微量豆瓣糖份。' },
+  { name: '北區花園夜市', area: '北區', addr: '海安路北段（假日）', level: 'medium', emoji: '🌙', dots: 3, tip: '台南最大夜市，選碳烤系列、烤肉串、海鮮燒烤，鹹食很多。', code: '🔑 走碳烤區，不走甜品區', extra: '現烤玉米、蝦子是外國人最愛的無甜選項。' },
+  { name: '北區傳統麵食館', area: '北區', addr: '西門路四段', level: 'low', emoji: '🍝', dots: 2, tip: '台南在地麵食不特別強調甜，以鹹香醬油為主味。', code: '✅ 放心點，甜度很低', extra: '乾麵加油蔥酥是台南最純粹的鹹麵。' },
+];
+
+/* ── 狀態 ── */
+let shopsData = [...DEFAULT_SHOPS];  // 目前顯示的店家
+let isLoggedIn = false;
+let githubToken = '';    // 從 sessionStorage 讀取
+let currentFileSha = ''; // GitHub 檔案的 SHA，更新時需要
+
+/* ════════ 登入 ════════ */
+function doLogin() {
+  const pw    = document.getElementById('pw-input').value;
+  const token = document.getElementById('token-input').value.trim();
+  if (pw !== ADMIN_PASSWORD) {
+    document.getElementById('login-err').textContent = '密碼錯誤，請再試一次';
+    document.getElementById('login-err').style.display = 'block';
+    document.getElementById('pw-input').value = '';
+    return;
+  }
+  if (!token) {
+    document.getElementById('login-err').textContent = '請輸入 GitHub Token';
+    document.getElementById('login-err').style.display = 'block';
+    return;
+  }
+  githubToken = token;
+  sessionStorage.setItem('tainan_admin', '1');
+  sessionStorage.setItem('gh_token', token);
+  showAdmin();
+}
+function doLogout() {
+  sessionStorage.clear();
+  location.reload();
+}
+window.doLogin  = doLogin;
+window.doLogout = doLogout;
+window.openModal = openModal;
+
+/* ════════ 初始化 ════════ */
+function init() {
+  document.getElementById('loading').classList.add('hidden');
+  const alreadyIn = sessionStorage.getItem('tainan_admin');
+  const savedToken = sessionStorage.getItem('gh_token');
+  if (alreadyIn && savedToken) {
+    githubToken = savedToken;
+    showAdmin();
+  } else {
+    document.getElementById('login-screen').style.display = 'flex';
+  }
+}
+
+function showAdmin() {
+  isLoggedIn = true;
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('admin-screen').style.display = 'block';
+  document.getElementById('loading').classList.add('hidden');
+  loadShopsFromGitHub();
+}
+
+/* ════════ 從 GitHub 載入店家 ════════ */
+async function loadShopsFromGitHub() {
+  setSyncStatus('載入中...', false);
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`,
+      { headers: { 'Authorization': `token ${githubToken}`, 'Accept': 'application/vnd.github.v3+json' } }
+    );
+    if (!res.ok) throw new Error('GitHub API 回應錯誤: ' + res.status);
+    const json = await res.json();
+    currentFileSha = json.sha;
+    const decoded = JSON.parse(atob(json.content.replace(/\n/g, '')));
+    shopsData = Array.isArray(decoded) ? decoded : DEFAULT_SHOPS;
+    setSyncStatus('已同步 GitHub', true);
+  } catch(e) {
+    console.warn('GitHub 載入失敗，使用內建資料', e);
+    shopsData = [...DEFAULT_SHOPS];
+    setSyncStatus('離線（內建資料）', false);
+  }
+  renderList();
+  updateStats();
+}
+
+function setSyncStatus(text, live) {
+  document.getElementById('sync-label').textContent = text;
+  const dot = document.getElementById('sync-dot');
+  if (live) dot.classList.add('live'); else dot.classList.remove('live');
+}
+
+/* ════════ 統計 ════════ */
+function updateStats() {
+  document.getElementById('stat-total').textContent = shopsData.length;
+  document.getElementById('stat-low').textContent   = shopsData.filter(s => s.level === 'low').length;
+  document.getElementById('stat-high').textContent  = shopsData.filter(s => s.level === 'high').length;
+}
+
+/* ════════ 列表 ════════ */
+function renderList() {
+  const q = (document.getElementById('search').value || '').trim().toLowerCase();
+  const list = document.getElementById('shop-list');
+  const filtered = shopsData.filter(s =>
+    !q ||
+    (s.name || '').toLowerCase().includes(q) ||
+    (s.area || '').toLowerCase().includes(q) ||
+    (s.addr || '').toLowerCase().includes(q)
+  );
+  if (!filtered.length) {
+    list.innerHTML = `<div class="empty-msg">${q ? '找不到符合的店家' : '尚無店家資料，點「新增店家」開始吧！'}</div>`;
+    return;
+  }
+  list.innerHTML = filtered.map((s, i) => {
+    const idx = shopsData.indexOf(s);
+    return `
+    <div class="shop-row">
+      <div class="shop-row-emoji">${s.emoji || '🍽️'}</div>
+      <div class="shop-row-info">
+        <div class="shop-row-name">${s.name || '未命名'}</div>
+        <div class="shop-row-meta">📍 ${s.area || ''} ${s.addr ? '· ' + s.addr : ''}</div>
+      </div>
+      <span class="level-badge ${s.level || 'low'}">${LEVEL_LABELS[s.level] || '低甜'}</span>
+      <div class="row-actions">
+        <button class="edit-btn" data-idx="${idx}">編輯</button>
+        <button class="del-btn"  data-idx="${idx}">刪除</button>
+      </div>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('.edit-btn').forEach(b =>
+    b.addEventListener('click', () => openModal(parseInt(b.dataset.idx)))
+  );
+  list.querySelectorAll('.del-btn').forEach(b =>
+    b.addEventListener('click', () => deleteShop(parseInt(b.dataset.idx)))
+  );
+}
+window.renderList = renderList;
+
+/* ════════ 刪除 ════════ */
+async function deleteShop(idx) {
+  const s = shopsData[idx];
+  if (!confirm(`確定要刪除「${s?.name || '此店家'}」嗎？`)) return;
+  shopsData.splice(idx, 1);
+  await saveToGitHub('🗑️ 刪除店家：' + (s?.name || ''));
+  showToast('✅ 已刪除');
+  renderList();
+  updateStats();
+}
+
+/* ════════ Modal ════════ */
+function openModal(idx) {
+  const isEdit = idx !== null && idx !== undefined && idx >= 0;
+  const s = isEdit ? (shopsData[idx] || {}) : {};
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'shop-modal';
+  overlay.innerHTML = `
+    <div class="modal">
+      <div class="modal-title">${isEdit ? '✏️ 編輯店家' : '＋ 新增店家'}</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Emoji 圖示</label>
+          <input id="f-emoji" value="${s.emoji || '🍽️'}" maxlength="2" />
+        </div>
+        <div class="field">
+          <label>甜度等級</label>
+          <select id="f-level">
+            <option value="low"    ${(s.level||'low')==='low'    ?'selected':''}>低甜 ★</option>
+            <option value="medium" ${s.level==='medium'?'selected':''}>中甜 ★★★</option>
+            <option value="high"   ${s.level==='high'  ?'selected':''}>高甜 ★★★★★</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>店家名稱 *</label>
+        <input id="f-name" value="${s.name || ''}" placeholder="例：赤崁棺材板" />
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>行政區</label>
+          <select id="f-area">
+            ${AREAS.map(a => `<option value="${a}" ${(s.area||'中西區')===a?'selected':''}>${a}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field">
+          <label>地址 / 位置</label>
+          <input id="f-addr" value="${s.addr || ''}" placeholder="例：赤崁樓旁" />
+        </div>
+      </div>
+      <div class="field">
+        <label>給外地人的提示</label>
+        <textarea id="f-tip">${s.tip || ''}</textarea>
+      </div>
+      <div class="field">
+        <label>點餐密語</label>
+        <input id="f-code" value="${s.code || ''}" placeholder="例：🔑 密語：醬汁另盛" />
+      </div>
+      <div class="field">
+        <label>補充說明</label>
+        <textarea id="f-extra">${s.extra || ''}</textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="save-btn" id="modal-save-btn">${isEdit ? '儲存修改' : '新增店家'}</button>
+        <button class="cancel-btn" id="modal-cancel-btn">取消</button>
+      </div>
+    </div>`;
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+  document.body.appendChild(overlay);
+  document.getElementById('modal-cancel-btn').addEventListener('click', closeModal);
+  document.getElementById('modal-save-btn').addEventListener('click', () => saveShop(idx));
+  document.getElementById('f-name').focus();
+}
+window.openModal = openModal;
+
+function closeModal() {
+  document.getElementById('shop-modal')?.remove();
+}
+
+async function saveShop(idx) {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { alert('請輸入店家名稱'); return; }
+  const btn = document.getElementById('modal-save-btn');
+  btn.disabled = true;
+  btn.textContent = '上傳中...';
+  const level = document.getElementById('f-level').value;
+  const shop = {
+    emoji: document.getElementById('f-emoji').value.trim() || '🍽️',
+    name,
+    area:  document.getElementById('f-area').value,
+    addr:  document.getElementById('f-addr').value.trim(),
+    level,
+    dots:  LEVEL_DOTS[level],
+    tip:   document.getElementById('f-tip').value.trim(),
+    code:  document.getElementById('f-code').value.trim(),
+    extra: document.getElementById('f-extra').value.trim(),
+  };
+  const isEdit = idx !== null && idx !== undefined && idx >= 0;
+  if (isEdit) {
+    shopsData[idx] = shop;
+  } else {
+    shopsData.push(shop);
+  }
+  const ok = await saveToGitHub((isEdit ? '✏️ 編輯' : '➕ 新增') + '店家：' + name);
+  if (ok) {
+    showToast(isEdit ? '✅ 已儲存修改' : '✅ 已新增店家');
+    closeModal();
+    renderList();
+    updateStats();
+  } else {
+    btn.disabled = false;
+    btn.textContent = isEdit ? '儲存修改' : '新增店家';
+  }
+}
+
+/* ════════ 寫入 GitHub ════════ */
+async function saveToGitHub(commitMsg) {
+  setSyncStatus('上傳中...', false);
+  try {
+    // 先取得最新 SHA
+    const getRes = await fetch(
+      `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`,
+      { headers: { 'Authorization': `token ${githubToken}`, 'Accept': 'application/vnd.github.v3+json' } }
+    );
+    let sha = currentFileSha;
+    if (getRes.ok) {
+      const getJson = await getRes.json();
+      sha = getJson.sha;
+      currentFileSha = sha;
+    }
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(shopsData, null, 2))));
+    const body = { message: commitMsg, content, branch: GITHUB_BRANCH };
+    if (sha) body.sha = sha;
+    const putRes = await fetch(
+      `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`,
+      {
+        method: 'PUT',
+        headers: {
+          'Authorization': `token ${githubToken}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      }
+    );
+    if (!putRes.ok) {
+      const err = await putRes.json();
+      throw new Error(err.message || '上傳失敗');
+    }
+    const putJson = await putRes.json();
+    currentFileSha = putJson.content.sha;
+    setSyncStatus('已同步 GitHub ✓', true);
+    return true;
+  } catch(e) {
+    console.error('GitHub 寫入失敗', e);
+    showToast('❌ 上傳失敗：' + e.message);
+    setSyncStatus('上傳失敗', false);
+    return false;
+  }
+}
+
+/* ════════ Toast ════════ */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+/* ── START ── */
+init();
+</script>
+</body>
+</html>
