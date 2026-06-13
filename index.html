@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>府城無糖生存指南 · Sugar-Free Tainan</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a1208">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="府城無糖生存指南">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="專為外地人設計的台南美食通關外掛，甜度拆解・店家地圖・外國人推薦">
+
+<!-- iOS Icons (SVG inline fallback) -->
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1208;
+    --ink2: #3d2e0e;
+    --paper: #fdf6e8;
+    --paper2: #f5e8c8;
+    --paper3: #ede0b0;
+    --red: #c0392b;
+    --red2: #e74c3c;
+    --gold: #b8860b;
+    --gold2: #d4a017;
+    --teal: #0f5c52;
+    --teal2: #1a8a7a;
+    --orange: #c85a00;
+    --cream: #fff9ef;
+    --shadow: rgba(90,50,0,0.15);
+    --foreign: #1a4a7a;
+    --foreign2: #2563a8;
+    --foreign-light: #e8f2ff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    background: var(--ink);
+    padding: 0 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: 56px;
+  }
+  .nav-logo {
+    color: var(--gold2);
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    padding: 0 0.5rem;
+  }
+  .nav-tabs {
+    display: flex;
+    gap: 0;
+    height: 56px;
+  }
+  .nav-tab {
+    background: none;
+    border: none;
+    color: #aaa;
+    padding: 0 0.7rem;
+    font-size: 0.72rem;
+    font-family: 'Noto Sans TC', sans-serif;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    transition: color 0.2s;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+  }
+  .nav-tab.active {
+    color: var(--gold2);
+    border-bottom-color: var(--gold2);
+  }
+  .nav-tab span { font-size: 1rem; }
+
+  /* ── SCREENS ── */
+  .screen { display: none; animation: fadeIn 0.35s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ══════════════════════════════
+     SCREEN 1: HOME
+  ══════════════════════════════ */
+  .hero {
+    background: var(--ink);
+    min-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-map-wrap {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .hero-map-wrap svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.55;
+  }
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 3rem 2rem;
+    width: 100%;
+  }
+  .hero-badge {
+    background: var(--red);
+    color: #fff;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    padding: 4px 14px;
+    border-radius: 2px;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+    position: relative;
+  }
+  .hero h1 {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(2rem, 8vw, 3.5rem);
+    font-weight: 900;
+    color: var(--paper);
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+    position: relative;
+  }
+  .hero h1 em {
+    color: var(--gold2);
+    font-style: normal;
+  }
+  .hero-sub {
+    font-size: 0.9rem;
+    color: #888;
+    margin-bottom: 2.5rem;
+    letter-spacing: 0.08em;
+    position: relative;
+  }
+  .hero-cards {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 720px;
+    position: relative;
+  }
+  .hero-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(180,130,0,0.25);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    width: 200px;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .hero-card:hover {
+    border-color: var(--gold2);
+    background: rgba(180,130,0,0.08);
+  }
+  .hero-card.foreign-card {
+    border-color: rgba(37,99,168,0.4);
+  }
+  .hero-card.foreign-card:hover {
+    border-color: var(--foreign2);
+    background: rgba(37,99,168,0.08);
+  }
+  .hero-card-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+  .hero-card-title { color: var(--paper); font-weight: 500; font-size: 0.9rem; margin-bottom: 0.3rem; }
+  .hero-card-desc { color: #666; font-size: 0.75rem; line-height: 1.5; }
+  .hero-scroll { position: relative; margin-top: 3rem; color: #555; font-size: 0.75rem; animation: bounce 2s infinite; }
+  @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+
+  /* ══════════════════════════════
+     PAGE HEADER
+  ══════════════════════════════ */
+  .page-header {
+    background: var(--ink);
+    padding: 2rem 1.5rem 1.5rem;
+    color: var(--paper);
+  }
+  .page-header h2 {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+  }
+  .page-header p { color: #888; font-size: 0.82rem; }
+  .page-body { padding: 1.5rem; }
+
+  /* ══════════════════════════════
+     SCREEN 2: SWEETNESS DECODER
+  ══════════════════════════════ */
+  .dish-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .dish-btn {
+    background: var(--cream);
+    border: 1.5px solid var(--paper3);
+    border-radius: 8px;
+    padding: 0.75rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Noto Sans TC', sans-serif;
+  }
+  .dish-btn:hover, .dish-btn.active {
+    border-color: var(--gold);
+    background: #fff8e1;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadow);
+  }
+  .dish-btn .emoji { font-size: 1.6rem; display: block; margin-bottom: 0.4rem; }
+  .dish-btn .name { font-size: 0.8rem; font-weight: 500; color: var(--ink); }
+  .dish-btn .level { font-size: 0.7rem; color: #888; margin-top: 2px; }
+
+  .decode-panel {
+    background: var(--cream);
+    border: 1px solid var(--paper3);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .decode-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .decode-title .big-emoji { font-size: 2rem; }
+  .decode-title h3 { font-family: 'Noto Serif TC', serif; font-size: 1.1rem; }
+  .decode-title p { font-size: 0.78rem; color: #888; }
+
+  .sweetness-bar-wrap { margin-bottom: 0.75rem; }
+  .sweetness-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    margin-bottom: 4px;
+  }
+  .sweetness-bar-label .src { color: var(--ink2); font-weight: 500; }
+  .sweetness-bar-label .pct { color: #888; }
+  .bar-track {
+    height: 10px;
+    background: var(--paper3);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+  }
+  .bar-fill.natural { background: linear-gradient(90deg, #2a9d8f, #52b788); }
+  .bar-fill.added   { background: linear-gradient(90deg, #e9c46a, #f4a261); }
+
+  .decode-verdict {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    line-height: 1.6;
+  }
+  .decode-verdict.low    { background: #e8f5e9; border-left: 3px solid #2a9d8f; }
+  .decode-verdict.medium { background: #fff8e1; border-left: 3px solid #e9c46a; }
+  .decode-verdict.high   { background: #fff3e0; border-left: 3px solid #f4a261; }
+
+  .legend { display: flex; gap: 1rem; margin-bottom: 1rem; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.72rem; color: #666; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .legend-dot.natural { background: #2a9d8f; }
+  .legend-dot.added   { background: #f4a261; }
+
+  /* ══════════════════════════════
+     SCREEN 3: MAP / SHOPS
+  ══════════════════════════════ */
+  .area-filter-wrap {
+    background: #f8f3e8;
+    border-bottom: 1px solid var(--paper3);
+    padding: 0.75rem 1.25rem 0.75rem;
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+  }
+  .area-search {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1.5px solid var(--paper3);
+    border-radius: 20px;
+    background: white;
+    font-size: 13px;
+    font-family: 'Noto Sans TC', sans-serif;
+    color: var(--ink);
+  }
+  .area-search:focus { outline: none; border-color: var(--gold); }
+  .area-select {
+    padding: 7px 28px 7px 12px;
+    border: 1.5px solid var(--paper3);
+    border-radius: 20px;
+    background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E") no-repeat right 10px center;
+    appearance: none;
+    -webkit-appearance: none;
+    font-size: 13px;
+    font-family: 'Noto Sans TC', sans-serif;
+    color: var(--ink);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .area-select:focus { outline: none; border-color: var(--gold); }
+
+  .shop-list { padding: 1rem 1.5rem; }
+  .shop-card {
+    background: var(--cream);
+    border: 1px solid var(--paper3);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .shop-card:hover { border-color: var(--teal2); transform: translateX(4px); }
+  .shop-card.expanded { border-color: var(--teal); }
+  .shop-card-header { display: flex; align-items: center; gap: 0.75rem; }
+  .shop-pin {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; flex-shrink: 0;
+  }
+  .shop-pin.high   { background: #fdecea; }
+  .shop-pin.medium { background: #fff8e1; }
+  .shop-pin.low    { background: #e8f5e9; }
+  .shop-name { font-weight: 500; font-size: 0.9rem; }
+  .shop-meta { font-size: 0.73rem; color: #888; margin-top: 2px; }
+  .sweet-dots { display: flex; gap: 2px; margin-left: auto; }
+  .sweet-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--paper3);
+  }
+  .sweet-dot.on { background: var(--orange); }
+
+  .shop-tip {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed var(--paper3);
+    display: none;
+  }
+  .shop-card.expanded .shop-tip { display: block; }
+  .tip-label {
+    font-size: 0.7rem;
+    color: var(--teal);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.4rem;
+  }
+  .tip-text { font-size: 0.8rem; line-height: 1.6; color: var(--ink2); }
+  .tip-code {
+    display: inline-block;
+    margin-top: 0.4rem;
+    background: var(--teal);
+    color: #fff;
+    font-size: 0.75rem;
+    padding: 3px 10px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+  }
+  .area-tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    padding: 2px 7px;
+    border-radius: 10px;
+    background: var(--paper2);
+    color: var(--ink2);
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+
+  /* ══════════════════════════════
+     SCREEN 4: FOREIGN / LOW-SUGAR PICKS
+  ══════════════════════════════ */
+  .foreign-header {
+    background: linear-gradient(135deg, var(--foreign) 0%, #0d3460 100%);
+    padding: 2rem 1.5rem 1.5rem;
+    color: var(--paper);
+    position: relative;
+    overflow: hidden;
+  }
+  .foreign-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.03) 21px);
+  }
+  .foreign-header h2 {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+    position: relative;
+  }
+  .foreign-header p { color: #9ab4d4; font-size: 0.82rem; position: relative; }
+
+  .lang-toggle {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--foreign-light);
+    border-bottom: 1px solid #c8dff5;
+    position: relative;
+  }
+  .lang-btn {
+    background: #fff;
+    border: 1.5px solid #c8dff5;
+    border-radius: 20px;
+    padding: 0.3rem 0.85rem;
+    font-size: 0.75rem;
+    font-family: 'Noto Sans TC', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--foreign);
+  }
+  .lang-btn.active {
+    background: var(--foreign);
+    border-color: var(--foreign);
+    color: #fff;
+  }
+
+  .category-tabs {
+    display: flex;
+    gap: 0;
+    background: #fff;
+    border-bottom: 1px solid #e0ecf8;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .category-tabs::-webkit-scrollbar { display: none; }
+  .cat-tab {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 0.7rem 1rem;
+    font-size: 0.78rem;
+    cursor: pointer;
+    white-space: nowrap;
+    color: #888;
+    font-family: 'Noto Sans TC', sans-serif;
+    transition: all 0.2s;
+  }
+  .cat-tab.active {
+    color: var(--foreign);
+    border-bottom-color: var(--foreign2);
+    font-weight: 700;
+  }
+
+  .rec-grid {
+    padding: 1rem 1.25rem;
+    display: grid;
+    gap: 0.85rem;
+  }
+  .rec-card {
+    background: #fff;
+    border: 1px solid #ddeeff;
+    border-radius: 12px;
+    padding: 1.1rem 1.25rem;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .rec-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: var(--foreign2);
+    border-radius: 4px 0 0 4px;
+  }
+  .rec-card:hover { box-shadow: 0 4px 16px rgba(37,99,168,0.12); transform: translateY(-2px); }
+  .rec-card-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.6rem;
+  }
+  .rec-icon {
+    font-size: 1.7rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .rec-name-zh { font-weight: 700; font-size: 0.95rem; color: var(--ink); }
+  .rec-name-en { font-size: 0.78rem; color: var(--foreign2); font-weight: 500; margin-top: 1px; }
+  .rec-area-tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    padding: 2px 7px;
+    border-radius: 10px;
+    background: var(--foreign-light);
+    color: var(--foreign);
+    margin-top: 3px;
+  }
+  .rec-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-bottom: 0.6rem;
+  }
+  .rec-badge {
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+  .rec-badge.sugar-free { background: #e0f7f0; color: #0b7155; }
+  .rec-badge.beginner   { background: #fff3e0; color: #b05a00; }
+  .rec-badge.savory     { background: #fce8e8; color: #b02020; }
+  .rec-badge.seafood    { background: #e8f0ff; color: #2040a0; }
+  .rec-badge.veg        { background: #e8f5e9; color: #2e7d32; }
+  .rec-badge.unique     { background: #f3e8ff; color: #6a1b9a; }
+  .rec-badge.mild       { background: #e8f5e9; color: #388e3c; }
+  .rec-desc { font-size: 0.78rem; line-height: 1.65; color: #555; }
+  .rec-tip-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-top: 0.6rem;
+    background: var(--foreign-light);
+    border-radius: 6px;
+    padding: 0.45rem 0.7rem;
+  }
+  .rec-tip-icon { font-size: 0.85rem; flex-shrink: 0; }
+  .rec-tip-text { font-size: 0.74rem; color: var(--foreign); line-height: 1.5; }
+
+
+  /* Notification Toast */
+  .toast {
+    position: fixed;
+    bottom: 70px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ink);
+    color: var(--gold2);
+    border: 1px solid var(--gold);
+    border-radius: 8px;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.82rem;
+    white-space: nowrap;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 200;
+    font-family: 'Noto Serif TC', serif;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .shop-count {
+    padding: 0.4rem 1.5rem;
+    font-size: 0.72rem;
+    color: #888;
+    background: var(--paper);
+    border-bottom: 1px solid var(--paper3);
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">府城無糖指南</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showScreen('home', this)">
+      <span>🏮</span>首頁
+    </button>
+    <button class="nav-tab" onclick="showScreen('decode', this)">
+      <span>🧪</span>甜度拆解
+    </button>
+    <button class="nav-tab" onclick="showScreen('map', this)">
+      <span>🗺️</span>店家地圖
+    </button>
+    <button class="nav-tab" onclick="showScreen('foreign', this)">
+      <span>🌏</span>推薦專區
+    </button>
+  </div>
+</nav>
+
+<!-- ── SCREEN: HOME ── -->
+<div id="screen-home" class="screen active">
+  <div class="hero">
+    <!-- Tainan Map Background -->
+    <div class="hero-map-wrap">
+      <svg viewBox="0 0 500 700" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <radialGradient id="mapGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#b8860b" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#1a1208" stop-opacity="0"/>
+          </radialGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+            <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <!-- Background -->
+        <rect width="500" height="700" fill="#0e0d0b"/>
+        <!-- Sea / water areas west -->
+        <path d="M0,0 L120,0 L100,80 L80,180 L60,280 L50,380 L55,450 L40,520 L0,600 Z" fill="#0a1a28" opacity="0.9"/>
+        <!-- Tainan city boundary - simplified shape -->
+        <path d="M120,30 L280,20 L340,60 L380,120 L400,200 L410,280 L420,360 L400,440 L380,500 L340,560 L290,620 L240,660 L180,680 L130,660 L80,620 L60,550 L55,470 L65,390 L70,310 L80,230 L90,160 L100,90 Z"
+              fill="#1e1608" stroke="#b8860b" stroke-width="1.5" opacity="0.85"/>
+        <!-- Districts -->
+        <!-- 中西區 (center-west) -->
+        <path d="M160,280 L220,270 L240,310 L230,350 L180,355 L155,330 Z"
+              fill="#2a1f08" stroke="#d4a017" stroke-width="1" opacity="0.9"/>
+        <text x="195" y="318" font-size="8" fill="#d4a017" text-anchor="middle" font-family="serif" opacity="0.9">中西區</text>
+        <!-- 東區 -->
+        <path d="M250,260 L320,255 L335,300 L320,340 L255,345 L245,305 Z"
+              fill="#221a07" stroke="#c49010" stroke-width="1" opacity="0.9"/>
+        <text x="290" y="303" font-size="8" fill="#c49010" text-anchor="middle" font-family="serif" opacity="0.9">東區</text>
+        <!-- 北區 -->
+        <path d="M170,170 L290,160 L310,220 L280,255 L200,260 L160,240 Z"
+              fill="#1e1a06" stroke="#b87a00" stroke-width="1" opacity="0.9"/>
+        <text x="235" y="213" font-size="8" fill="#b87a00" text-anchor="middle" font-family="serif" opacity="0.9">北區</text>
+        <!-- 安平區 (southwest coast) -->
+        <path d="M85,350 L155,335 L175,380 L165,430 L110,440 L80,410 Z"
+              fill="#142018" stroke="#2a9d8f" stroke-width="1" opacity="0.9"/>
+        <text x="128" y="392" font-size="8" fill="#2a9d8f" text-anchor="middle" font-family="serif" opacity="0.9">安平區</text>
+        <!-- 永康區 (east) -->
+        <path d="M320,310 L400,300 L415,370 L395,420 L325,415 L310,365 Z"
+              fill="#1a1808" stroke="#a06020" stroke-width="1" opacity="0.9"/>
+        <text x="362" y="362" font-size="8" fill="#a06020" text-anchor="middle" font-family="serif" opacity="0.9">永康區</text>
+        <!-- Roads grid -->
+        <line x1="160" y1="150" x2="155" y2="680" stroke="#b8860b" stroke-width="0.4" opacity="0.3"/>
+        <line x1="240" y1="130" x2="235" y2="680" stroke="#b8860b" stroke-width="0.4" opacity="0.3"/>
+        <line x1="320" y1="140" x2="310" y2="650" stroke="#b8860b" stroke-width="0.4" opacity="0.3"/>
+        <line x1="80" y1="200" x2="420" y2="195" stroke="#b8860b" stroke-width="0.4" opacity="0.3"/>
+        <line x1="75" y1="290" x2="415" y2="285" stroke="#b8860b" stroke-width="0.4" opacity="0.3"/>
+        <line x1="70" y1="380" x2="410" y2="375" stroke="#b8860b" stroke-width="0.4" opacity="0.3"/>
+        <line x1="75" y1="460" x2="400" y2="455" stroke="#b8860b" stroke-width="0.4" opacity="0.3"/>
+        <!-- Tainan Bay coast decoration -->
+        <path d="M60,150 Q40,250 45,380 Q50,450 65,520" stroke="#2a9d8f" stroke-width="1.2" fill="none" opacity="0.5" stroke-dasharray="4,3"/>
+        <!-- Map pins / landmarks -->
+        <circle cx="195" cy="308" r="4" fill="#c0392b" opacity="0.9" filter="url(#glow)"/>
+        <circle cx="290" cy="295" r="3.5" fill="#c0392b" opacity="0.8" filter="url(#glow)"/>
+        <circle cx="125" cy="385" r="3.5" fill="#2a9d8f" opacity="0.9" filter="url(#glow)"/>
+        <circle cx="362" cy="355" r="3.5" fill="#c0392b" opacity="0.8" filter="url(#glow)"/>
+        <circle cx="235" cy="205" r="3.5" fill="#c0392b" opacity="0.8" filter="url(#glow)"/>
+        <!-- Compass rose -->
+        <g transform="translate(430,80)">
+          <circle r="18" fill="none" stroke="#b8860b" stroke-width="0.8" opacity="0.5"/>
+          <text x="0" y="-8" font-size="8" fill="#d4a017" text-anchor="middle" opacity="0.8">N</text>
+          <line x1="0" y1="-5" x2="0" y2="5" stroke="#b8860b" stroke-width="1" opacity="0.6"/>
+          <line x1="-5" y1="0" x2="5" y2="0" stroke="#b8860b" stroke-width="0.6" opacity="0.4"/>
+        </g>
+        <!-- Scale bar -->
+        <line x1="350" y1="640" x2="420" y2="640" stroke="#b8860b" stroke-width="0.8" opacity="0.5"/>
+        <text x="385" y="655" font-size="6" fill="#b8860b" text-anchor="middle" opacity="0.5">5 km</text>
+        <!-- Glow overlay -->
+        <rect width="500" height="700" fill="url(#mapGlow)"/>
+        <!-- Top/bottom gradient fades -->
+        <rect width="500" height="120" fill="url(#topFade)" opacity="1"/>
+        <defs>
+          <linearGradient id="topFade" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0e0d0b"/>
+            <stop offset="100%" stop-color="#0e0d0b" stop-opacity="0"/>
+          </linearGradient>
+          <linearGradient id="botFade" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0e0d0b" stop-opacity="0"/>
+            <stop offset="100%" stop-color="#0e0d0b"/>
+          </linearGradient>
+        </defs>
+        <rect y="580" width="500" height="120" fill="url(#botFade)"/>
+      </svg>
+    </div>
+
+    <div class="hero-content">
+      <div class="hero-badge">SUGAR-FREE TAINAN · 2025</div>
+      <h1>府城<em>無糖</em><br>生存指南</h1>
+      <p class="hero-sub">專為外地人設計的台南美食通關外掛</p>
+      <div class="hero-cards">
+        <div class="hero-card" onclick="showScreen('decode', document.querySelectorAll('.nav-tab')[1])">
+          <div class="hero-card-icon">🧪</div>
+          <div class="hero-card-title">甜度拆解計</div>
+          <div class="hero-card-desc">用科學圖表揭開每道菜的真實甜味來源</div>
+        </div>
+        <div class="hero-card" onclick="showScreen('map', document.querySelectorAll('.nav-tab')[2])">
+          <div class="hero-card-icon">🗺️</div>
+          <div class="hero-card-title">全區店家地圖</div>
+          <div class="hero-card-desc">東區・中西區・安平區・永康區・北區 完整收錄</div>
+        </div>
+        <div class="hero-card foreign-card" onclick="showScreen('foreign', document.querySelectorAll('.nav-tab')[3])">
+          <div class="hero-card-icon">🌏</div>
+          <div class="hero-card-title">外國人推薦專區</div>
+          <div class="hero-card-desc">不愛甜食？ Here's your guide to Tainan</div>
+        </div>
+      </div>
+      <p class="hero-scroll">▼ 點選上方功能開始探索</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── SCREEN: DECODE ── -->
+<div id="screen-decode" class="screen">
+  <div class="page-header">
+    <h2>🧪 甜度拆解計</h2>
+    <p>點選一道台南小吃，AI 幫你解析甜味來源</p>
+  </div>
+  <div class="page-body">
+    <div class="dish-grid" id="dishGrid"></div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot natural"></div>天然食材甜</div>
+      <div class="legend-item"><div class="legend-dot added"></div>加入糖分</div>
+    </div>
+    <div class="decode-panel" id="decodePanel"></div>
+  </div>
+</div>
+
+<!-- ── SCREEN: MAP ── -->
+<div id="screen-map" class="screen">
+  <div class="page-header">
+    <h2>🗺️ 台南全區店家地圖</h2>
+    <p>台南市 37 個行政區完整收錄</p>
+  </div>
+  <div class="area-filter-wrap" id="areaFilter">
+    <input class="area-search" type="text" id="areaSearch" placeholder="🔍 搜尋店家名稱..." oninput="onAreaSearch()" />
+    <select class="area-select" id="areaSelect" onchange="onAreaSelect(this)">
+      <option value="全部">全部地區</option>
+      <optgroup label="府城核心"></optgroup>
+      <optgroup label="北部"></optgroup>
+      <optgroup label="南部"></optgroup>
+      <optgroup label="東部・山區"></optgroup>
+      <optgroup label="沿海"></optgroup>
+    </select>
+  </div>
+  <div class="shop-count" id="shopCount"></div>
+  <div class="shop-list" id="shopList"></div>
+</div>
+
+<!-- ── SCREEN: FOREIGN / LOW-SUGAR PICKS ── -->
+<div id="screen-foreign" class="screen">
+  <div class="foreign-header">
+    <h2>🌏 外國人推薦 · For Non-Sweet Lovers</h2>
+    <p>不愛甜食的你，在台南也能吃得超滿足</p>
+  </div>
+  <div class="lang-toggle">
+    <button class="lang-btn active" onclick="setLang('zh', this)">中文</button>
+    <button class="lang-btn" onclick="setLang('en', this)">English</button>
+    <button class="lang-btn" onclick="setLang('jp', this)">日本語</button>
+  </div>
+  <div class="category-tabs" id="catTabs">
+    <button class="cat-tab active" onclick="filterCat('全部', this)">全部 All</button>
+    <button class="cat-tab" onclick="filterCat('鹹食', this)">鹹食 Savory</button>
+    <button class="cat-tab" onclick="filterCat('海鮮', this)">海鮮 Seafood</button>
+    <button class="cat-tab" onclick="filterCat('素食', this)">素食 Veg</button>
+    <button class="cat-tab" onclick="filterCat('獨特', this)">台南獨有 Unique</button>
+  </div>
+  <div class="rec-grid" id="recGrid"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ════════════════════════════════════════
+   DATA
+════════════════════════════════════════ */
+const dishes = [
+  /* ── 經典主食 ── */
+  {
+    id: 'shan', emoji: '🍜', name: '鱔魚意麵', level: '甜度 ★★★',
+    sources: [
+      { label: '洋蔥焦糖化甜', pct: 45, type: 'natural' },
+      { label: '鱔魚本身鮮甜', pct: 20, type: 'natural' },
+      { label: '傳統二砂調味', pct: 20, type: 'added' },
+      { label: '烏醋回甘', pct: 15, type: 'natural' },
+    ],
+    verdict: 'low',
+    verdictText: '台南鱔魚意麵的甜主要來自洋蔥高溫翻炒後的焦糖化反應，這是純粹的蔬菜天然糖分。加入的二砂只佔整體甜感的 20%，目的是平衡鱔魚的土腥味，而非單純追求甜度。',
+    tips: '解膩：加一勺黑醋，立即感受酸甜平衡的驚喜。'
+  },
+  {
+    id: 'geng', emoji: '🥣', name: '虱目魚羹', level: '甜度 ★★☆',
+    sources: [
+      { label: '虱目魚天然鮮甜', pct: 40, type: 'natural' },
+      { label: '柴魚高湯底甜', pct: 25, type: 'natural' },
+      { label: '太白粉收汁甜', pct: 20, type: 'natural' },
+      { label: '白糖調味', pct: 15, type: 'added' },
+    ],
+    verdict: 'low',
+    verdictText: '虱目魚是台南的海洋瑰寶，本身富含胺基酸，加熱後自然散發鮮甜。湯頭的甜幾乎全來自食材本身，額外加糖僅作提鮮，含量遠低於一般人的想像。',
+    tips: '解膩：在湯裡加 2 滴東成辣椒醬，油亮鮮香立即提升。'
+  },
+  {
+    id: 'mochi', emoji: '🟤', name: '台南碗粿', level: '甜度 ★☆☆',
+    sources: [
+      { label: '蓬萊米漿天然甜', pct: 55, type: 'natural' },
+      { label: '紅蔥頭甜香', pct: 25, type: 'natural' },
+      { label: '醬油膏微甜', pct: 15, type: 'added' },
+      { label: '其他', pct: 5, type: 'added' },
+    ],
+    verdict: 'low',
+    verdictText: '碗粿其實偏鹹香而非甜！甜味幾乎全來自米本身的澱粉。外地遊客通常誤解台南小吃「全部都甜」，這道菜正是最好的反例。',
+    tips: '完全不需要解膩，直接享用原味最棒！'
+  },
+  {
+    id: 'peanut', emoji: '🥜', name: '棺材板', level: '甜度 ★★★☆',
+    sources: [
+      { label: '奶油醬鮮甜', pct: 30, type: 'added' },
+      { label: '海鮮天然甜', pct: 28, type: 'natural' },
+      { label: '麵包油炸甜香', pct: 22, type: 'natural' },
+      { label: '調味糖', pct: 20, type: 'added' },
+    ],
+    verdict: 'medium',
+    verdictText: '棺材板的甜度較為均衡，加工糖分約佔 20%，其餘甜味來自奶油醬中的鮮乳成分與海鮮食材。油炸過的麵包在高溫下產生梅納反應，形成特有的焦香甜感，這是外地人覺得「甜」的主要原因。',
+    tips: '解膩：佐一杯無糖青草茶，古早味完整呈現。'
+  },
+  {
+    id: 'milk', emoji: '🍮', name: '古早味豆花', level: '甜度 ★★★★',
+    sources: [
+      { label: '糖水（二砂+冰糖）', pct: 55, type: 'added' },
+      { label: '黃豆天然甜', pct: 25, type: 'natural' },
+      { label: '薑汁辛甜', pct: 12, type: 'natural' },
+      { label: '花生糖漿', pct: 8, type: 'added' },
+    ],
+    verdict: 'high',
+    verdictText: '古早味豆花是台南甜食中糖分佔比確實較高的一道，這是台灣傳統甜品的文化特色，反映清代糖業發達的歷史背景。建議第一次嘗試可以告訴老闆「糖水少一點」，享受豆腐本身的豆香。',
+    tips: '解膩通關密語：「老闆，糖水半份就好！」'
+  },
+
+  /* ── 湯品 ── */
+  {
+    id: 'beef', emoji: '🥩', name: '台南牛肉湯', level: '甜度 ★☆☆',
+    sources: [
+      { label: '牛骨膠原蛋白甜', pct: 60, type: 'natural' },
+      { label: '薑片天然辛甜', pct: 25, type: 'natural' },
+      { label: '鹽與調味', pct: 10, type: 'added' },
+      { label: '其他微量', pct: 5, type: 'natural' },
+    ],
+    verdict: 'low',
+    verdictText: '台南清燉牛肉湯是台南最純粹的一道料理，湯頭的清甜完全來自牛骨長時間熬製所釋出的膠原蛋白與天然胺基酸，全程零加糖。外國遊客公認是最好入門的台南小吃之一。',
+    tips: '無需解膩！薑絲沾醬油一起吃，感受最原汁原味的台南牛肉。'
+  },
+  {
+    id: 'clam', emoji: '🦪', name: '蛤蜊湯', level: '甜度 ★★☆',
+    sources: [
+      { label: '蛤蜊天然海鮮甜', pct: 65, type: 'natural' },
+      { label: '薑片辛甜', pct: 20, type: 'natural' },
+      { label: '米酒提鮮', pct: 10, type: 'natural' },
+      { label: '鹽微調', pct: 5, type: 'added' },
+    ],
+    verdict: 'low',
+    verdictText: '蛤蜊湯的甜度幾乎 100% 來自蛤蜊本身的天然琥珀酸（鮮味物質），開殼後釋入湯中，形成獨特的海洋鮮甜。台南安平養殖蛤蜊品質頂級，這道湯完全零加糖。',
+    tips: '原味最佳！不要加任何調料，才能感受蛤蜊最純粹的鮮甜。'
+  },
+
+  /* ── 麵飯 ── */
+  {
+    id: 'lurou', emoji: '🍚', name: '台南肉燥飯', level: '甜度 ★★★',
+    sources: [
+      { label: '冰糖上色提香', pct: 35, type: 'added' },
+      { label: '五花肉本身油脂甜', pct: 30, type: 'natural' },
+      { label: '醬油膏回甜', pct: 20, type: 'added' },
+      { label: '紅蔥頭焦糖甜', pct: 15, type: 'natural' },
+    ],
+    verdict: 'medium',
+    verdictText: '台南肉燥飯以冰糖代替砂糖是關鍵技術，冰糖能讓肉燥呈現琥珀光澤、甜而不膩。這是刻意保留的古早技法，而非「台南特別愛甜」——加糖的目的是提升醬色與香氣，不是追求甜味本身。',
+    tips: '通關密語：「肉燥清淡一點」，老闆會少淋醬汁，甜度立降一半。'
+  },
+  {
+    id: 'danzi', emoji: '🍝', name: '擔仔麵', level: '甜度 ★★☆',
+    sources: [
+      { label: '蝦頭高湯天然甜', pct: 45, type: 'natural' },
+      { label: '豬油蔥香甜', pct: 25, type: 'natural' },
+      { label: '醬油回甜', pct: 20, type: 'added' },
+      { label: '白蝦天然鮮甜', pct: 10, type: 'natural' },
+    ],
+    verdict: 'low',
+    verdictText: '擔仔麵的湯頭靈魂是蝦頭熬製的金黃高湯，天然甜味來自甲殼素分解後的胺基酸。傳統作法只用醬油調色調鹹，不另加糖，整碗的甜幾乎全屬食材本味。',
+    tips: '加一顆滷蛋增加鹹香，完美平衡湯頭的海鮮甜感。'
+  },
+  {
+    id: 'migao', emoji: '🫙', name: '台南米糕', level: '甜度 ★★★',
+    sources: [
+      { label: '糯米澱粉甜', pct: 40, type: 'natural' },
+      { label: '肉燥冰糖甜', pct: 30, type: 'added' },
+      { label: '醬油膏回甜', pct: 20, type: 'added' },
+      { label: '香菇天然甜', pct: 10, type: 'natural' },
+    ],
+    verdict: 'medium',
+    verdictText: '台南米糕糯米飯底Q彈，糯米澱粉本身就帶有相當的甜味。肉燥調味使用冰糖是台南古法，佔整體甜度約 30%。建議把肉燥另盛，可以自行調配比例。',
+    tips: '通關密語：「肉燥另盛」，先品白飯米香，再決定加多少肉燥。'
+  },
+
+  /* ── 小吃 ── */
+  {
+    id: 'bawan', emoji: '🫔', name: '台南肉圓', level: '甜度 ★★☆',
+    sources: [
+      { label: '蓬萊米皮天然甜', pct: 45, type: 'natural' },
+      { label: '竹筍天然鮮甜', pct: 25, type: 'natural' },
+      { label: '醬汁微甜', pct: 20, type: 'added' },
+      { label: '豬肉本身油甜', pct: 10, type: 'natural' },
+    ],
+    verdict: 'low',
+    verdictText: '台南版肉圓以鹹香為主，與彰化甜版截然不同。米皮的甜來自蓬萊米本身澱粉，竹筍則帶天然鮮甜，醬汁調味偏鹹辣，整體遠比外地人想像中不甜。',
+    tips: '跟老闆說「台南在地口味」，他會給你鹹香醬汁而非甜辣版本。'
+  },
+  {
+    id: 'shrimp', emoji: '🍤', name: '安平蝦捲', level: '甜度 ★☆☆',
+    sources: [
+      { label: '鮮蝦天然甜', pct: 55, type: 'natural' },
+      { label: '豆皮油炸香甜', pct: 25, type: 'natural' },
+      { label: '魚漿天然甜', pct: 15, type: 'natural' },
+      { label: '鹽與胡椒', pct: 5, type: 'added' },
+    ],
+    verdict: 'low',
+    verdictText: '安平蝦捲是台南最親外國人的小吃之一。所有甜味 100% 來自鮮蝦與食材本身，現炸時豆皮在高溫下釋出天然香甜。沾的是醬油而非甜醬，幾乎零加糖。',
+    tips: '現炸立刻吃！外皮放涼就會軟，甜香瞬間流失。沾薄醬油即可。'
+  },
+  {
+    id: 'guantsai', emoji: '⚰️', name: '虱目魚肚', level: '甜度 ★☆☆',
+    sources: [
+      { label: '魚肚油脂天然甘甜', pct: 60, type: 'natural' },
+      { label: '薑絲去腥帶辛甜', pct: 20, type: 'natural' },
+      { label: '米酒提鮮', pct: 15, type: 'natural' },
+      { label: '鹽調味', pct: 5, type: 'added' },
+    ],
+    verdict: 'low',
+    verdictText: '虱目魚肚是台南的「市魚」靈魂料理。魚肚油脂豐富，加熱後釋出天然魚甘，完全不需要加糖。安平養殖場直送的虱目魚肚鮮度最高，是最能代表台南海洋風土的零糖料理。',
+    tips: '清蒸最完美！搭配薑蔥蒸熟，吃時淋一匙蒸魚醬油即可。'
+  },
+
+  /* ── 飲品甜點 ── */
+  {
+    id: 'sugarcane', emoji: '🥤', name: '現榨甘蔗汁', level: '甜度 ★★★★★',
+    sources: [
+      { label: '甘蔗天然蔗糖', pct: 75, type: 'natural' },
+      { label: '甘蔗纖維澱粉甜', pct: 15, type: 'natural' },
+      { label: '檸檬微酸平衡', pct: 7, type: 'natural' },
+      { label: '冰鎮稀釋效果', pct: 3, type: 'natural' },
+    ],
+    verdict: 'high',
+    verdictText: '現榨甘蔗汁是台灣糖業文化的直接體現——整杯的甜幾乎全是天然蔗糖，雖無添加糖，含糖量卻非常高。台南曾是全台最大的蔗糖產地，這杯汁是喝一口歷史的方式。',
+    tips: '高甜度。可加榨一小塊薑片或半顆檸檬進去，清爽感大幅提升！'
+  },
+];
+
+/* ── ALL SHOPS (5 districts) ── */
+let shops = [
+  // ── 中西區 ──
+  { name: '阿松割包', area: '中西區', addr: '民族路二段附近', level: 'high', emoji: '🥙', dots: 4, tip: '傳承三代的割包以黑糖醬著稱，甜度較高是刻意保留的古早風味。', code: '🔑 通關密語：「醬料分開放」', extra: '找到桌上的烏醋瓶，加 2 滴可達到完美平衡！' },
+  { name: '府城肉燥飯', area: '中西區', addr: '民族路附近', level: 'medium', emoji: '🍚', dots: 3, tip: '台南肉燥會加入少量冰糖提升醬色與香氣，這是正統台南做法。', code: '🔑 通關密語：「肉燥清淡一點」', extra: '搭配免費的清湯，可以有效稀釋整體甜度。' },
+  { name: '無名虱目魚湯', area: '中西區', addr: '保安路', level: 'low', emoji: '🐟', dots: 1, tip: '這家的湯頭以天然魚骨熬製，幾乎不加糖，是外地人初探台南的安全首選！', code: '✅ 無需密語，原味最佳', extra: '可以放心點用，甜度非常低，魚鮮味十足。' },
+  { name: '老牌碗粿', area: '中西區', addr: '赤崁樓旁', level: 'low', emoji: '🟤', dots: 2, tip: '老師傅堅持不加一滴糖，讓米香自然散發。在地人早餐首選。', code: '✅ 純米香，放心享用', extra: '淋上特製醬油膏即可，這是最道地的吃法。' },
+  { name: '赤崁擔仔麵', area: '中西區', addr: '赤崁樓周邊', level: 'medium', emoji: '🍝', dots: 3, tip: '傳統台南擔仔麵湯頭用蝦仁、豬油熬製，甜來自食材本身。', code: '🔑 密語：「蝦油少一點」', extra: '多加一顆滷蛋增加鹹香，平衡整碗的甜感。' },
+  { name: '國華街鹹粥', area: '中西區', addr: '國華街三段', level: 'low', emoji: '🥣', dots: 1, tip: '清爽的海鮮鹹粥，以蛤蜊、虱目魚提鮮，幾乎零加糖。', code: '✅ 外國人最愛，零負擔', extra: '加一勺烏魚子更增鮮味，是台南特有吃法。' },
+  { name: '永記虱目魚丸', area: '中西區', addr: '開山路', level: 'low', emoji: '🎱', dots: 1, tip: '手工虱目魚丸口感Q彈，清湯底幾乎無甜度，湯頭純粹鮮美。', code: '✅ 放心享用', extra: '點加辣版本讓鮮味更立體。' },
+  { name: '阿美飯店', area: '中西區', addr: '海安路一段', level: 'medium', emoji: '🍛', dots: 2, tip: '傳承台南古早家常味，紅燒肉甜度適中，不會過甜。', code: '🔑 密語：「紅燒汁少淋」', extra: '白飯很香，建議多加一碗！' },
+
+  // ── 東區 ──
+  { name: '東區鱔魚意麵', area: '東區', addr: '東門路二段', level: 'medium', emoji: '🍜', dots: 3, tip: '東區在地老字號，鱔魚新鮮肥美，醬汁比觀光區版本更平衡。', code: '🔑 密語：「醬汁少一半」', extra: '搭配泡菜解膩效果很好！' },
+  { name: '裕農路早餐店', area: '東區', addr: '裕農路', level: 'low', emoji: '🥚', dots: 1, tip: '在地人的早餐秘境，蔥花蛋餅鹹香不甜，豆漿可選無糖。', code: '✅ 全無糖版本可點', extra: '豆漿請直接說「無糖豆漿」，老闆習慣加糖要特別說。' },
+  { name: '東區牛肉湯', area: '東區', addr: '崇德路', level: 'low', emoji: '🥩', dots: 1, tip: '台南清燙牛肉湯是國際遊客最愛，清湯基底零加糖，牛肉極鮮。', code: '✅ 外國人必吃，無甜度', extra: '沾薑絲與醬油，不需任何甜醬。' },
+  { name: '文化路夜市小吃', area: '東區', addr: '文化路', level: 'medium', emoji: '🌙', dots: 3, tip: '夜市集合型，選豬血糕、大腸包小腸等鹹食，甜度有限。', code: '🔑 選鹹食攤位即可', extra: '避開糖葫蘆、糖炒杏仁等明顯甜食攤位。' },
+  { name: '成功大學附近豆漿店', area: '東區', addr: '大學路', level: 'low', emoji: '🥛', dots: 1, tip: '大學周邊早餐店競爭激烈，品質高、甜度低是共同特色。', code: '✅ 記得說「無糖」', extra: '蛋餅加起司是學生最愛的無甜早餐。' },
+  { name: '麻豆碗粿東區分店', area: '東區', addr: '東門圓環附近', level: 'low', emoji: '🟤', dots: 2, tip: '正宗麻豆碗粿工藝移植到東區，米香濃郁完全不加糖。', code: '✅ 純鹹香版本', extra: '可以加辣油增添風味變化。' },
+  { name: '東寧路香腸熟肉', area: '東區', addr: '東寧路', level: 'medium', emoji: '🌭', dots: 3, tip: '台南特有的「香腸熟肉」文化，多種食材選擇，鹹食為主。', code: '🔑 點鹹水雞、花生最穩妥', extra: '搭配芥末醬油，鮮甜全靠食材本身。' },
+
+  // ── 安平區 ──
+  { name: '安平蝦捲', area: '安平區', addr: '安平路', level: 'low', emoji: '🍤', dots: 2, tip: '安平傳統蝦捲外皮酥脆，蝦肉天然鮮甜，蘸附帶醬油而非甜醬。', code: '✅ 點「原味不加醬」最讚', extra: '現炸最香，外皮不沾任何甜醬。' },
+  { name: '安平老街虱目魚粥', area: '安平區', addr: '安平老街', level: 'low', emoji: '🐟', dots: 1, tip: '安平漁村正宗做法，柴魚高湯底部不加一滴糖，鮮美無比。', code: '✅ 外國人指定必吃', extra: '加一點薑絲可以完美去腥提鮮。' },
+  { name: '安平豆腐乳冰', area: '安平區', addr: '效忠街', level: 'high', emoji: '🍦', dots: 5, tip: '安平名物，豆腐乳鹹甜交雜是台南人的獨特口味，不愛甜食者謹慎嘗試。', code: '⚠️ 高甜度！建議試一口再決定', extra: '豆腐乳鹹味會平衡部分甜度，其實比看起來有趣很多。' },
+  { name: '劍獅埕海產料理', area: '安平區', addr: '安北路', level: 'low', emoji: '🦞', dots: 1, tip: '安平海港直送海鮮，清蒸料理為主，零添加糖，最原汁原味。', code: '✅ 選清蒸系列最安心', extra: '大顆文蛤、白蝦是招牌，搭配米酒提味。' },
+  { name: '安平港漁市場', area: '安平區', addr: '安平漁港', level: 'low', emoji: '🦐', dots: 1, tip: '漁港直接採購、現煮海鮮，沒有任何多餘調味，極度新鮮。', code: '✅ 最接近自然味道', extra: '帶外國朋友來這裡最合適，新鮮海鮮說話。' },
+  { name: '億載金城旁米糕', area: '安平區', addr: '億載金城附近', level: 'medium', emoji: '🫙', dots: 3, tip: '台南米糕糯米飯底，甜鹹兼具，肉燥調味偏古早甜香。', code: '🔑 密語：「肉燥另盛」', extra: '先吃白飯感受糯米香，再決定加多少肉燥。' },
+
+  // ── 永康區 ──
+  { name: '永康牛肉麵', area: '永康區', addr: '中正路', level: 'low', emoji: '🥩', dots: 1, tip: '永康在地牛肉麵以清燉見長，湯頭以牛骨長時間熬製，不加糖。', code: '✅ 外國人超滿意，大推', extra: '選「清燉」版本絕對無甜，「紅燒」有微量豆瓣糖份。' },
+  { name: '永康傳統市場早餐', area: '永康區', addr: '永康市場', level: 'low', emoji: '🥚', dots: 1, tip: '純在地早餐攤，蛋餅、饅頭夾蛋，傳統鹹食無甜版本。', code: '✅ 最真實的台南人早餐', extra: '豆漿記得點「不加糖」，師傅習慣加。' },
+  { name: '大橋頭鱔魚', area: '永康區', addr: '中山路附近', level: 'medium', emoji: '🍜', dots: 3, tip: '永康版鱔魚意麵少觀光客，價格親切，甜度比中西區版本稍低。', code: '🔑 密語：「醬少一半」', extra: '老闆娘人很好，多說幾次就記住你的喜好了。' },
+  { name: '永康小港漁獲直送', area: '永康區', addr: '中華路', level: 'low', emoji: '🐠', dots: 1, tip: '離台南市區稍遠，但海鮮超新鮮，清蒸系列零加糖是外國人天堂。', code: '✅ 清蒸類全都無糖', extra: '整條魚清蒸搭配薑蔥，完全不甜。' },
+  { name: '奇美博物館附近飲食街', area: '永康區', addr: '文化路附近', level: 'medium', emoji: '🎨', dots: 2, tip: '博物館附近有多家在地小吃，選鹹食為主的豬腳、米糕都有低糖選項。', code: '🔑 避開剉冰甜點攤', extra: '看博物館後到附近用餐，吃完繼續遊玩。' },
+  { name: '永康豆皮火鍋店', area: '永康區', addr: '永大路', level: 'low', emoji: '🫕', dots: 1, tip: '台灣式火鍋湯底清爽，不甜，可自選食材全部為天然食材。', code: '✅ 完全無甜，熱湯暖心', extra: '沙茶醬稍甜，可改換醬油蒜末蘸料。' },
+
+  // ── 北區 ──
+  { name: '北區花園夜市', area: '北區', addr: '海安路北段（假日）', level: 'medium', emoji: '🌙', dots: 3, tip: '台南最大夜市，選碳烤系列、烤肉串、海鮮燒烤，鹹食很多。', code: '🔑 走碳烤區，不走甜品區', extra: '現烤玉米、蝦子是外國人最愛的無甜選項。' },
+  { name: '北區傳統麵食館', area: '北區', addr: '西門路四段', level: 'low', emoji: '🍝', dots: 2, tip: '台南在地麵食不特別強調甜，以鹹香醬油為主味。', code: '✅ 放心點，甜度很低', extra: '乾麵加油蔥酥是台南最純粹的鹹麵。' },
+  { name: '北區海鮮羹', area: '北區', addr: '北門路附近', level: 'low', emoji: '🦑', dots: 1, tip: '老字號海鮮羹，柴魚高湯鮮美，甜度幾乎全來自食材。', code: '✅ 外國人指定海鮮羹', extra: '加烏醋與白胡椒，風味立體不甜膩。' },
+  { name: '北區豬血湯', area: '北區', addr: '成功路北段', level: 'low', emoji: '🩸', dots: 1, tip: '台南名物豬血湯，口感滑嫩，鹹鮮為主，幾乎無甜味。', code: '✅ 可大膽嘗試，不甜', extra: '加韭菜與醬油，是最道地的吃法。' },
+  { name: '北區傳統鹹粥', area: '北區', addr: '公園路', level: 'low', emoji: '🥣', dots: 1, tip: '北區在地人早餐鹹粥，大量海鮮與薑絲，湯頭清爽無甜。', code: '✅ 外國人最適合的早餐', extra: '油條沾湯一起吃是台南傳統吃法。' },
+  { name: '林百貨附近創意料理', area: '北區', addr: '中正路林百貨周邊', level: 'low', emoji: '🏬', dots: 2, tip: '林百貨周邊新興餐飲，以現代台南料理重新詮釋傳統小吃。', code: '✅ 現代版甜度較低', extra: '菜單多有英文，外國朋友友善。' },
+];
+
+/* ── FOREIGN RECOMMENDATIONS ── */
+let foreignRecs = [
+  {
+    emoji:'🐟', nameZh:'清燉牛肉湯', nameEn:'Braised Beef Soup', area:'東區 · 安平區',
+    cat:'鹹食', badges:['sugar-free','beginner'],
+    badgeLabels:['無糖', '初訪必吃'],
+    descZh:'台南最自豪的早餐，純牛骨熬製、完全不加糖。每天天亮即開賣，在地人排隊搶位。',
+    descEn:'The pride of Tainan mornings. Pure bone broth with zero sugar — locals queue before dawn.',
+    descJp:'台南の誇りの朝食。砂糖不使用の純骨スープで地元民が夜明け前から並ぶほどの一品。',
+    tipZh:'說「不要薑絲」可以避免嗆味，直接感受牛肉鮮甜。',
+    tipEn:'Ask for "no ginger shreds" if you prefer a cleaner flavor.',
+  },
+  {
+    emoji:'🥣', nameZh:'海鮮鹹粥', nameEn:'Savory Seafood Congee', area:'中西區 · 北區',
+    cat:'海鮮', badges:['sugar-free','seafood'],
+    badgeLabels:['無糖','海鮮'],
+    descZh:'台南海鮮粥以蛤蜊、虱目魚、蝦仁為主角，湯頭完全無糖，清爽鮮美，外國遊客一吃就愛上。',
+    descEn:'Clams, milkfish, and shrimp in a clean, zero-sugar broth. A foreign visitor favorite.',
+    descJp:'貝、サバヒー、海老が主役のお粥。砂糖ゼロのスープで外国人観光客に大人気。',
+    tipZh:'加一點白胡椒粉可以提鮮，記得說「不加糖」。',
+    tipEn:'A pinch of white pepper brightens the flavor. Ask for no sugar just in case.',
+  },
+  {
+    emoji:'🍤', nameZh:'安平蝦捲', nameEn:"An Ping Shrimp Roll", area:'安平區',
+    cat:'海鮮', badges:['beginner','seafood','unique'],
+    badgeLabels:['初訪必吃','海鮮','台南獨有'],
+    descZh:'台南安平獨有！新鮮蝦肉裹豆皮現炸，外酥內嫩，沾薄醬油而非甜醬。',
+    descEn:"Tainan's own specialty — fresh shrimp in tofu skin, deep-fried. Dip in soy, not sweet sauce.",
+    descJp:'台南安平のみのご当地グルメ。豆腐皮に包んだ新鮮な海老をサクサクに揚げ、甘いソースではなく醤油につけて食べる。',
+    tipZh:'一定要現炸熱吃！放涼後皮會軟掉。',
+    tipEn:'Eat immediately while hot — the skin loses its crunch as it cools.',
+  },
+  {
+    emoji:'🥩', nameZh:'永康清燉牛肉麵', nameEn:'Clear Broth Beef Noodles', area:'永康區',
+    cat:'鹹食', badges:['sugar-free','savory'],
+    badgeLabels:['無糖','鹹食'],
+    descZh:'清燉版牛肉麵湯頭清澈濃郁，純牛骨熬製 8 小時以上，一滴糖都不需要。',
+    descEn:'Slow-simmered beef bone broth, 8+ hours, zero sugar. Crystal clear and deeply satisfying.',
+    descJp:'8時間以上煮込んだ牛骨スープ。砂糖ゼロで澄み切った深い味わい。',
+    tipZh:'點「清燉」，不點「紅燒」，就能確保無甜。',
+    tipEn:'Order "qing dun" (clear) not "hong shao" (braised) for a sugar-free bowl.',
+  },
+  {
+    emoji:'🟤', nameZh:'台南碗粿', nameEn:'Bowl Cake (Wàn Guê)', area:'中西區 · 東區',
+    cat:'鹹食', badges:['mild','unique'],
+    badgeLabels:['低甜度','台南獨有'],
+    descZh:'米漿蒸製的鹹香主食，台南人不加糖，只有醬油膏與蒜頭的鹹香。最能打破「台南食物都很甜」的迷思。',
+    descEn:"Steamed rice cake with soy and garlic — the dish that debunks the 'Tainan is too sweet' myth.",
+    descJp:'醤油とにんにくで蒸した米のケーキ。「台南は甘すぎる」という誤解を解く一品。',
+    tipZh:'上面的醬油膏鹹香，完全不甜。放心享用！',
+    tipEn:'The dark sauce on top is savory soy paste — no sugar at all. Enjoy freely!',
+  },
+  {
+    emoji:'🌭', nameZh:'香腸熟肉', nameEn:'Cold Cut Platter', area:'東區 · 北區',
+    cat:'鹹食', badges:['savory','unique'],
+    badgeLabels:['鹹食','台南獨有'],
+    descZh:'台南獨特的鹹水雞式文化，各種豬肉加工品、花生、豆干，搭配芥末醬油，完全鹹食。',
+    descEn:"Cold cuts Tainan-style: processed pork, peanuts, tofu — served with mustard soy. Purely savory.",
+    descJp:'台南独自のコールドミートプレート。豚肉加工品、ピーナッツ、豆腐干など、マスタード醤油と一緒に。',
+    tipZh:'重點：蘸芥末醬油，不是甜辣醬！',
+    tipEn:'Key point: dip in mustard soy, NOT sweet chili sauce!',
+  },
+  {
+    emoji:'🥓', nameZh:'虱目魚肚', nameEn:'Milkfish Belly', area:'中西區 · 安平區',
+    cat:'海鮮', badges:['sugar-free','seafood','unique'],
+    badgeLabels:['無糖','海鮮','台南獨有'],
+    descZh:'台南的「市魚」，清燉魚肚油脂豐富又不膩，完全無糖。安平養殖場直送，是最接近台南靈魂的一道菜。',
+    descEn:"Tainan's 'city fish' — fatty but clean milkfish belly, zero sugar. Direct from An Ping fish farms.",
+    descJp:'台南の「市の魚」。脂がのっているのにさっぱりしたサバヒーのお腹、砂糖ゼロ。',
+    tipZh:'清蒸魚肚加薑蔥，搭配白飯是最完美吃法。',
+    tipEn:'Steamed with ginger and scallion, paired with rice — the perfect combination.',
+  },
+  {
+    emoji:'🦑', nameZh:'花枝羹', nameEn:'Squid Thick Soup', area:'北區 · 中西區',
+    cat:'海鮮', badges:['mild','seafood'],
+    badgeLabels:['低甜度','海鮮'],
+    descZh:'台南花枝羹以現殺花枝、柴魚高湯為基底，甜度幾乎全來自海鮮本身，加烏醋與白胡椒更提味。',
+    descEn:'Cuttlefish in a dashi-based broth — the sweetness is all natural seafood. Black vinegar optional.',
+    descJp:'現場で締めたイカと鰹節スープ。甘みは全て食材由来。黒酢でさらに旨味アップ。',
+    tipZh:'加烏醋與白胡椒是完整風味的關鍵。',
+    tipEn:'Black vinegar + white pepper = the magic combo.',
+  },
+  {
+    emoji:'🧆', nameZh:'油豆腐細粉', nameEn:'Tofu & Glass Noodle Soup', area:'中西區 · 北區',
+    cat:'素食', badges:['mild','veg'],
+    badgeLabels:['低甜度','素食'],
+    descZh:'台南傳統素食小吃，豆腐、冬粉以清甜高湯煮成，甜度來自蔬菜高湯，外國人接受度極高。',
+    descEn:'Traditional Tainan veggie soup — tofu and glass noodles in light vegetable broth. Very approachable.',
+    descJp:'台南の伝統的な精進料理。豆腐と春雨を薄味の野菜スープで煮た一品。外国人にも好評。',
+    tipZh:'加一點豆腐乳進去，風味更加層次豐富。',
+    tipEn:'Try adding a tiny bit of fermented tofu for extra depth.',
+  },
+  {
+    emoji:'🫙', nameZh:'棺材板', nameEn:'Coffin Bread', area:'中西區',
+    cat:'獨特', badges:['unique','beginner'],
+    badgeLabels:['台南獨有','初訪必吃'],
+    descZh:'台南發明的獨特小吃！厚片吐司挖空填入奶油海鮮濃湯，因形似棺材而得名。外脆內濃郁，是台南必吃體驗。',
+    descEn:"Tainan's invention — thick toast hollowed out and filled with creamy seafood chowder. Named after a coffin. Crunchy outside, rich inside.",
+    descJp:'台南発祥のユニーク料理！厚切りトーストをくり抜いてクリーミーなシーフードスープを詰めたもの。外はカリカリ、中は濃厚。',
+    tipZh:'用蓋子的麵包沾著湯汁吃，一口都不能浪費！',
+    tipEn:"Use the bread lid to scoop up the soup — don't waste a drop!",
+  },
+  {
+    emoji:'🍡', nameZh:'土魠魚羹', nameEn:'Spanish Mackerel Soup', area:'中西區 · 東區',
+    cat:'獨特', badges:['unique','seafood'],
+    badgeLabels:['台南獨有','海鮮'],
+    descZh:'台南才有的高級羹湯！土魠魚（西班牙鯖魚）裹粉油炸後下鍋，魚肉鮮甜扎實，羹湯清淡不甜。',
+    descEn:"A Tainan exclusive — battered and fried Spanish mackerel in a light, savory broth. Firm, fresh, unforgettable.",
+    descJp:'台南限定の高級スープ。衣をつけて揚げたサワラをあっさりしたスープに入れた一品。肉厚で鮮度抜群。',
+    tipZh:'加一點烏醋提鮮，魚肉要趁熱吃才嫩。',
+    tipEn:'Add a splash of black vinegar and eat the fish hot for the best texture.',
+  },
+  {
+    emoji:'🥚', nameZh:'虱目魚粥', nameEn:'Milkfish Porridge', area:'中西區 · 安平區',
+    cat:'獨特', badges:['unique','sugar-free'],
+    badgeLabels:['台南獨有','無糖'],
+    descZh:'台南人的靈魂早餐！安平養殖的新鮮虱目魚配上清粥，幾乎零加糖，細膩魚香讓外國人驚艷不已。',
+    descEn:"The soul of Tainan breakfast. Fresh milkfish from An Ping farms over rice porridge — zero sugar, pure flavor.",
+    descJp:'台南人のソウルフード朝食。安平産の新鮮なサバヒーとお粥の組み合わせ。砂糖ゼロで外国人も大絶賛。',
+    tipZh:'魚肚、魚皮、魚丸三種都要試！各有不同口感。',
+    tipEn:'Try the belly, skin, and fish balls — each has a different texture worth experiencing.',
+  },
+];
+
+let currentLang = 'zh';
+let currentCat = '全部';
+let currentArea = '全部';
+
+/* ════════════════════════════════════════
+   RENDER: DISHES
+════════════════════════════════════════ */
+function renderDishes() {
+  const grid = document.getElementById('dishGrid');
+  grid.innerHTML = dishes.map((d, i) => `
+    <button class="dish-btn ${i === 0 ? 'active' : ''}" onclick="selectDish(${i}, this)">
+      <span class="emoji">${d.emoji}</span>
+      <div class="name">${d.name}</div>
+      <div class="level">${d.level}</div>
+    </button>
+  `).join('');
+  renderDecode(0);
+}
+
+function selectDish(i, btn) {
+  document.querySelectorAll('.dish-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderDecode(i);
+}
+
+function renderDecode(i) {
+  const d = dishes[i];
+  const panel = document.getElementById('decodePanel');
+  panel.innerHTML = `
+    <div class="decode-title">
+      <span class="big-emoji">${d.emoji}</span>
+      <div>
+        <h3>${d.name}</h3>
+        <p>${d.level}</p>
+      </div>
+    </div>
+    ${d.sources.map(s => `
+      <div class="sweetness-bar-wrap">
+        <div class="sweetness-bar-label">
+          <span class="src">${s.label}</span>
+          <span class="pct">${s.pct}%</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill ${s.type}" style="width: 0%" data-target="${s.pct}%"></div>
+        </div>
+      </div>
+    `).join('')}
+    <div class="decode-verdict ${d.verdict}">
+      <strong>🔬 科學解析</strong><br>${d.verdictText}
+      <br><br><em>💡 ${d.tips}</em>
+    </div>
+  `;
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      document.querySelectorAll('.bar-fill[data-target]').forEach(el => {
+        el.style.width = el.dataset.target;
+      });
+    });
+  });
+}
+
+/* ════════════════════════════════════════
+   台南 37 區 — 完整列表（分組）
+════════════════════════════════════════ */
+const AREA_GROUPS = {
+  'chips-core':  [['中西區','West Central'],['東區','East'],['南區','South'],['北區','North'],['安平區','Anping'],['安南區','Annan'],['永康區','Yongkang']],
+  'chips-north': [['新營區','Sinying'],['鹽水區','Yanshui'],['白河區','Baihe'],['柳營區','Liuying'],['後壁區','Houbi'],['東山區','Dongshan'],['麻豆區','Madou'],['下營區','Siaying'],['六甲區','Liujia'],['官田區','Guantian'],['大內區','Danei']],
+  'chips-south': [['仁德區','Rende'],['歸仁區','Guiren'],['關廟區','Guanmiao'],['龍崎區','Longqi']],
+  'chips-east':  [['新化區','Xinhua'],['善化區','Shanhua'],['新市區','Xinshi'],['安定區','Anding'],['山上區','Shanshang'],['玉井區','Yujing'],['楠西區','Nansi'],['南化區','Nanhua'],['左鎮區','Zuozhen']],
+  'chips-coast': [['佳里區','Jiali'],['學甲區','Xuejia'],['西港區','Sigang'],['七股區','Qigu'],['將軍區','Jiangjun'],['北門區','Beimen']],
+};
+// Helper to get Chinese name from area entry
+const areaZh = a => Array.isArray(a) ? a[0] : a;
+const areaEn = a => Array.isArray(a) ? a[1] : a;
+
+const ALL_AREAS = ['全部', ...Object.values(AREA_GROUPS).flat().map(areaZh)];
+
+function renderAreaChips() {
+  const sel = document.getElementById('areaSelect');
+  const groupLabels = ['府城核心','北部','南部','東部・山區','沿海'];
+  const groupKeys = ['chips-core','chips-north','chips-south','chips-east','chips-coast'];
+  const optgroups = sel.querySelectorAll('optgroup');
+  groupKeys.forEach((key, i) => {
+    const areas = AREA_GROUPS[key];
+    const og = optgroups[i];
+    og.innerHTML = areas.map(a => `<option value="${areaZh(a)}">${areaZh(a)} ${areaEn(a)}</option>`).join('');
+  });
+}
+
+let shopSearch = '';
+
+function onAreaSearch() {
+  shopSearch = document.getElementById('areaSearch').value.trim().toLowerCase();
+  renderShops();
+}
+
+function onAreaSelect(sel) {
+  currentArea = sel.value;
+  shopSearch = '';
+  document.getElementById('areaSearch').value = '';
+  renderShops();
+}
+
+/* ════════════════════════════════════════
+   RENDER: SHOPS
+════════════════════════════════════════ */
+function renderShops() {
+  const list = document.getElementById('shopList');
+  const count = document.getElementById('shopCount');
+  let filtered = currentArea === '全部' ? shops : shops.filter(s => s.area === currentArea);
+  if (shopSearch) {
+    filtered = filtered.filter(s =>
+      (s.name    || '').toLowerCase().includes(shopSearch) ||
+      (s.nameEn  || '').toLowerCase().includes(shopSearch) ||
+      (s.area    || '').toLowerCase().includes(shopSearch) ||
+      (s.addr    || '').toLowerCase().includes(shopSearch) ||
+      (s.tip     || '').toLowerCase().includes(shopSearch)
+    );
+  }
+  count.textContent = `共 ${filtered.length} 間店家`;
+  list.innerHTML = filtered.map((s) => `
+    <div class="shop-card" onclick="toggleShop(this)">
+      <div class="shop-card-header">
+        <div class="shop-pin ${s.level}">${s.emoji}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="shop-name">${s.name}<span class="area-tag">${s.area}</span></div>
+          ${s.nameEn ? `<div style="font-size:0.72rem;color:#999;margin-top:1px;">${s.nameEn}</div>` : ''}
+          <div class="shop-meta">📍 ${s.addr}</div>
+        </div>
+        <div class="sweet-dots">
+          ${[1,2,3,4,5].map(n => `<div class="sweet-dot ${n <= s.dots ? 'on' : ''}"></div>`).join('')}
+        </div>
+      </div>
+      <div class="shop-tip">
+        <div class="tip-label">▶ 在地解膩情報</div>
+        <div class="tip-text">${s.tip}<br>${s.extra}</div>
+        ${s.tipEn ? `<div style="font-size:0.75rem;color:#888;margin-top:6px;line-height:1.5;">🌏 ${s.tipEn}</div>` : ''}
+        <span class="tip-code">${s.code}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleShop(card) {
+  const wasExpanded = card.classList.contains('expanded');
+  document.querySelectorAll('.shop-card').forEach(c => c.classList.remove('expanded'));
+  if (!wasExpanded) card.classList.add('expanded');
+}
+
+function filterArea(area, btn) {
+  currentArea = area;
+  shopSearch = '';
+  document.getElementById('areaSearch').value = '';
+  const sel = document.getElementById('areaSelect');
+  if (sel) sel.value = area;
+  renderShops();
+}
+
+/* ════════════════════════════════════════
+   RENDER: FOREIGN RECS
+════════════════════════════════════════ */
+function renderRecs() {
+  const grid = document.getElementById('recGrid');
+  const filtered = currentCat === '全部' ? foreignRecs : foreignRecs.filter(r => r.cat === currentCat);
+  grid.innerHTML = filtered.map(r => {
+    const name = currentLang === 'zh' ? r.nameZh : (currentLang === 'en' ? r.nameEn : r.nameEn);
+    const desc = currentLang === 'zh' ? r.descZh : (currentLang === 'en' ? r.descEn : (r.descJp || r.descEn));
+    const tip  = currentLang === 'zh' ? r.tipZh : r.tipEn;
+    return `
+      <div class="rec-card">
+        <div class="rec-card-top">
+          <span class="rec-icon">${r.emoji}</span>
+          <div>
+            <div class="rec-name-zh">${currentLang === 'zh' ? r.nameZh : r.nameEn}</div>
+            ${currentLang === 'zh' ? `<div class="rec-name-en">${r.nameEn}</div>` : ''}
+            <div class="rec-area-tag">📍 ${r.area}</div>
+          </div>
+        </div>
+        <div class="rec-badges">
+          ${r.badges.map((b, i) => `<span class="rec-badge ${b}">${r.badgeLabels[i]}</span>`).join('')}
+        </div>
+        <div class="rec-desc">${desc}</div>
+        <div class="rec-tip-row">
+          <span class="rec-tip-icon">💡</span>
+          <span class="rec-tip-text">${tip}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function setLang(lang, btn) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderRecs();
+}
+
+function filterCat(cat, btn) {
+  currentCat = cat;
+  document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderRecs();
+}
+
+
+/* ════════════════════════════════════════
+   UTILS
+════════════════════════════════════════ */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function showScreen(id, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+/* ── 將所有 onclick 用到的函數掛到 window（module 內必須這樣做）── */
+window.showScreen  = showScreen;
+window.selectDish  = selectDish;
+window.filterArea  = filterArea;
+window.onAreaSearch = onAreaSearch;
+window.onAreaSelect = onAreaSelect;
+window.toggleShop  = toggleShop;
+window.setLang     = setLang;
+window.filterCat   = filterCat;
+window.showToast   = showToast;
+
+/* ── INIT ── */
+/* ════════════════════════════════════════
+   FIREBASE — 即時同步店家資料
+════════════════════════════════════════ */
+// ✅ 先用內建資料立即顯示
+renderDishes();
+renderRecs();
+renderAreaChips();
+renderShops();
+
+// 從 shops.json 載入最新資料（後台更新後約 1~2 分鐘生效）
+fetch('shops.json?t=' + Date.now())
+  .then(r => r.json())
+  .then(data => {
+    if (Array.isArray(data) && data.length > 0) {
+      shops = data;
+      renderShops();
+    }
+  })
+  .catch(() => {});
+
+// 從 unique.json 載入台南獨有資料並合併
+fetch('unique.json?t=' + Date.now())
+  .then(r => r.json())
+  .then(data => {
+    if (Array.isArray(data) && data.length > 0) {
+      // 合併：移除已有同名的，再加入新的
+      const existingNames = new Set(foreignRecs.map(r => r.nameZh));
+      const newItems = data.filter(d => !existingNames.has(d.nameZh));
+      foreignRecs = [...foreignRecs, ...newItems];
+      renderRecs();
+    }
+  })
+  .catch(() => {});
+
+
+// ── PWA: Register Service Worker ──
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(reg => console.log('SW registered:', reg.scope))
+      .catch(err => console.log('SW error:', err));
+  });
+}
+
+// ── PWA: Install prompt ──
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // Show install banner after 3 seconds
+  setTimeout(() => {
+    const banner = document.getElementById('installBanner');
+    if (banner) banner.style.display = 'flex';
+  }, 3000);
+});
+document.addEventListener('click', (e) => {
+  if (e.target.id === 'installBtn') {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+    }
+    document.getElementById('installBanner').style.display = 'none';
+  }
+  if (e.target.id === 'dismissInstall') {
+    document.getElementById('installBanner').style.display = 'none';
+  }
+});
+</script>
+
+<!-- PWA Install Banner -->
+<div id="installBanner" style="display:none; position:fixed; bottom:70px; left:50%; transform:translateX(-50%); background:#1a1208; border:1px solid #b8860b; border-radius:12px; padding:0.85rem 1.1rem; gap:0.75rem; align-items:center; z-index:300; max-width:320px; width:90%; box-shadow:0 4px 20px rgba(0,0,0,0.5);">
+  <span style="font-size:1.4rem;">🏮</span>
+  <div style="flex:1;">
+    <div style="color:#fdf6e8; font-size:0.82rem; font-weight:600; font-family:'Noto Serif TC',serif;">安裝到桌面</div>
+    <div style="color:#888; font-size:0.72rem; margin-top:2px;">離線也能使用・快速啟動</div>
+  </div>
+  <button id="installBtn" style="background:#b8860b; color:#fff; border:none; border-radius:6px; padding:0.4rem 0.85rem; font-size:0.78rem; cursor:pointer; font-family:'Noto Sans TC',sans-serif; white-space:nowrap;">安裝</button>
+  <button id="dismissInstall" style="background:none; border:none; color:#555; font-size:1.1rem; cursor:pointer; padding:0 0.2rem;">✕</button>
+</div>
+</body>
+</html>
